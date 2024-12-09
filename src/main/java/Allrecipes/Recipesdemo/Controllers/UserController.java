@@ -1,10 +1,13 @@
 package Allrecipes.Recipesdemo.Controllers;
-
+    import Allrecipes.Recipesdemo.DTOs.UserCreateRequest;
 import Allrecipes.Recipesdemo.DTOs.UserResponse;
 import Allrecipes.Recipesdemo.DTOs.UserUpdateRequest;
 import Allrecipes.Recipesdemo.Entities.User;
 import Allrecipes.Recipesdemo.Service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +21,13 @@ public class UserController {
     @GetMapping("/me")
     public UserResponse getCurrentUser(@AuthenticationPrincipal User user) {
         return userService.toUserResponse(user);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserCreateRequest request) {
+        User user = userService.registerUser(request.getUsername(), request.getEmail(), request.getPassword());
+        UserResponse response = userService.toUserResponse(user);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     // Update user info

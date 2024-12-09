@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://your-frontend-url.com")); // Update with your frontend URL
+                    config.setAllowedOrigins(List.of("http://your-frontend-url.com")); // Update with your frontend URL or use "*" for all origins
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
                     config.setAllowCredentials(true);
@@ -54,9 +54,21 @@ public class SecurityConfig {
                 }))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()  // Public endpoints for registration/login
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")  // Admin-only endpoints
-                        .anyRequest().authenticated()  // All other endpoints require authentication
+                        // Permit access to Swagger endpoints
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/swagger.json"
+                        ).permitAll()
+                        // Public endpoints for registration/login
+                        .requestMatchers("/auth/**").permitAll()
+                        // Admin-only endpoints
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                        // Any other endpoints require authentication
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form.permitAll())

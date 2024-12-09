@@ -1,7 +1,9 @@
 package Allrecipes.Recipesdemo.Service;
 
-
 import Allrecipes.Recipesdemo.Entities.User;
+import Allrecipes.Recipesdemo.Exceptions.InvalidRecipeDataException;
+import Allrecipes.Recipesdemo.Exceptions.RecipeNotFoundException;
+import Allrecipes.Recipesdemo.Exceptions.UnauthorizedActionException;
 import Allrecipes.Recipesdemo.Recipe.Recipe;
 import Allrecipes.Recipesdemo.Recipe.RecipeCreateRequest;
 import Allrecipes.Recipesdemo.Recipe.RecipeResponse;
@@ -21,6 +23,12 @@ public class RecipeService {
     private RecipeRepository recipeRepository;
 
     public Recipe createRecipe(RecipeCreateRequest req, User user) {
+        // Validate RecipeCreateRequest (optional)
+        if (req.getTitle() == null || req.getTitle().isEmpty()) {
+            throw new InvalidRecipeDataException("Recipe title cannot be empty");
+        }
+        // Add more validation as needed
+
         Recipe recipe = Recipe.builder()
                 .title(req.getTitle())
                 .description(req.getDescription())
@@ -29,7 +37,7 @@ public class RecipeService {
                 .cookingTime(req.getCookingTime())
                 .servings(req.getServings())
                 .dietaryInfo(req.getDietaryInfo())
-                .status(RecipeStatus.PENDING_APPROVAL) //
+                .status(RecipeStatus.PENDING_APPROVAL)
                 .createdBy(user)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -60,13 +68,20 @@ public class RecipeService {
                 .createdByUsername(recipe.getCreatedBy().getUsername())
                 .build();
     }
+
     public Recipe updateRecipe(Long id, RecipeCreateRequest req, User user) {
         Recipe existing = recipeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Recipe not found"));
+                .orElseThrow(() -> new RecipeNotFoundException("Recipe not found"));
 
         if (!existing.getCreatedBy().getId().equals(user.getId())) {
-            throw new RuntimeException("You do not have permission to update this recipe");
+            throw new UnauthorizedActionException("You do not have permission to update this recipe");
         }
+
+        // Optionally, validate the request data
+        if (req.getTitle() == null || req.getTitle().isEmpty()) {
+            throw new InvalidRecipeDataException("Recipe title cannot be empty");
+        }
+        // Add more validation as needed
 
         existing.setTitle(req.getTitle());
         existing.setDescription(req.getDescription());
@@ -82,15 +97,13 @@ public class RecipeService {
 
     public void deleteRecipe(Long id, User user) {
         Recipe existing = recipeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Recipe not found"));
+                .orElseThrow(() -> new RecipeNotFoundException("Recipe not found"));
 
-        // Authorization check (optional)
+        // Authorization check
         if (!existing.getCreatedBy().getId().equals(user.getId())) {
-            throw new RuntimeException("You do not have permission to delete this recipe");
+            throw new UnauthorizedActionException("You do not have permission to delete this recipe");
         }
 
         recipeRepository.delete(existing);
     }
 }
-
-
