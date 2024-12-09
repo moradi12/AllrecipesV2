@@ -1,0 +1,63 @@
+package Allrecipes.Recipesdemo.Service;
+
+
+import Allrecipes.Recipesdemo.Entities.User;
+import Allrecipes.Recipesdemo.Recipe.Recipe;
+import Allrecipes.Recipesdemo.Recipe.RecipeCreateRequest;
+import Allrecipes.Recipesdemo.Recipe.RecipeResponse;
+import Allrecipes.Recipesdemo.RecipeStatus;
+import Allrecipes.Recipesdemo.Repositories.RecipeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Optional;
+
+@Service
+public class RecipeService {
+
+    @Autowired
+    private RecipeRepository recipeRepository;
+
+    public Recipe createRecipe(RecipeCreateRequest req, User user) {
+        Recipe recipe = Recipe.builder()
+                .title(req.getTitle())
+                .description(req.getDescription())
+                .ingredients(Collections.singletonList(req.getIngredients()))
+                .preparationSteps(req.getPreparationSteps())
+                .cookingTime(req.getCookingTime())
+                .servings(req.getServings())
+                .dietaryInfo(req.getDietaryInfo())
+                .status(RecipeStatus.PENDING_APPROVAL) //
+                .createdBy(user)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+        return recipeRepository.save(recipe);
+    }
+
+    public Optional<Recipe> findById(Long id) {
+        return recipeRepository.findById(id);
+    }
+
+    public Recipe save(Recipe recipe) {
+        recipe.setUpdatedAt(LocalDateTime.now());
+        return recipeRepository.save(recipe);
+    }
+
+    public RecipeResponse toRecipeResponse(Recipe recipe) {
+        return RecipeResponse.builder()
+                .id(recipe.getId())
+                .title(recipe.getTitle())
+                .description(recipe.getDescription())
+                .ingredients(recipe.getIngredients().toString())
+                .preparationSteps(recipe.getPreparationSteps())
+                .cookingTime(recipe.getCookingTime())
+                .servings(recipe.getServings())
+                .dietaryInfo(recipe.getDietaryInfo())
+                .status(recipe.getStatus().name())
+                .createdByUsername(recipe.getCreatedBy().getUsername())
+                .build();
+    }
+}
