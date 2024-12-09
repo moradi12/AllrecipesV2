@@ -10,4 +10,5 @@ import java.util.List;
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     List<Recipe> findByStatus(RecipeStatus status);
     List<Recipe> findByCreatedById(Long userId);
+    List<Recipe> findByStatus(String status);
 }

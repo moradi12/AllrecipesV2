@@ -19,9 +19,9 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*") // For testing; restrict in production
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("Authorization", "Content-Type")
+                        .allowedOrigins("*")
+                        .allowedMethods("GET","POST","PUT","DELETE")
+                        .allowedHeaders("Authorization","Content-Type")
                         .exposedHeaders("Authorization");
             }
         };

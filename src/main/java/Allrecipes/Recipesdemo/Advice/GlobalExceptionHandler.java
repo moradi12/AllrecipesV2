@@ -1,206 +1,74 @@
 package Allrecipes.Recipesdemo.Advice;
 
-import Allrecipes.Recipesdemo.Exceptions.EmailAlreadyTakenException;
-import Allrecipes.Recipesdemo.Exceptions.InvalidRecipeDataException;
-import Allrecipes.Recipesdemo.Exceptions.RecipeNotFoundException;
-import Allrecipes.Recipesdemo.Exceptions.UnauthorizedActionException;
-import Allrecipes.Recipesdemo.Exceptions.UserNotFoundException;
-import Allrecipes.Recipesdemo.Exceptions.UsernameAlreadyTakenException;
+import Allrecipes.Recipesdemo.Exceptions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Handle RecipeNotFoundException
-    @ExceptionHandler(RecipeNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleRecipeNotFoundException(RecipeNotFoundException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "Recipe Not Found",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            RecipeNotFoundException.class
+    })
+    public ResponseEntity<ErrDetails> handleNotFoundExceptions(RuntimeException ex, HttpServletRequest request) {
+        return buildErrorResponse("NOT_FOUND", ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    // Handle UserNotFoundException
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "User Not Found",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    @ExceptionHandler({
+            InvalidRecipeDataException.class,
+            IllegalArgumentException.class
+    })
+    public ResponseEntity<ErrDetails> handleBadRequestExceptions(RuntimeException ex, HttpServletRequest request) {
+        return buildErrorResponse("BAD_REQUEST", ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    // Handle UnauthorizedActionException
+    @ExceptionHandler({
+            UsernameAlreadyTakenException.class,
+            EmailAlreadyTakenException.class
+    })
+    public ResponseEntity<ErrDetails> handleConflictExceptions(RuntimeException ex, HttpServletRequest request) {
+        return buildErrorResponse("CONFLICT", ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(UnauthorizedActionException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedActionException(UnauthorizedActionException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.FORBIDDEN.value(),
-                "Forbidden",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrDetails> handleForbiddenException(UnauthorizedActionException ex, HttpServletRequest request) {
+        return buildErrorResponse("FORBIDDEN", ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    // Handle UsernameAlreadyTakenException
-    @ExceptionHandler(UsernameAlreadyTakenException.class)
-    public ResponseEntity<ErrorResponse> handleUsernameAlreadyTakenException(UsernameAlreadyTakenException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.CONFLICT.value(),
-                "Username Already Taken",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-    }
-
-    // Handle EmailAlreadyTakenException
-    @ExceptionHandler(EmailAlreadyTakenException.class)
-    public ResponseEntity<ErrorResponse> handleEmailAlreadyTakenException(EmailAlreadyTakenException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.CONFLICT.value(),
-                "Email Already Taken",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-    }
-
-    // Handle InvalidRecipeDataException
-    @ExceptionHandler(InvalidRecipeDataException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidRecipeDataException(InvalidRecipeDataException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Invalid Recipe Data",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
-
-    // Handle MethodArgumentNotValidException for validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        String errors = ex.getBindingResult()
+    public ResponseEntity<List<ErrDetails>> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        List<ErrDetails> fieldErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+                .map(fieldError -> new ErrDetails(fieldError.getField(), fieldError.getDefaultMessage()))
+                .collect(Collectors.toList());
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation Failed",
-                errors,
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        logger.error("Validation errors: {}", fieldErrors);
+        return new ResponseEntity<>(fieldErrors, HttpStatus.BAD_REQUEST);
     }
 
-    // Handle IllegalArgumentException
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
-
-    // Handle generic exceptions that are not caught by more specific handlers
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                "An unexpected error occurred. Please try again later.",
-                request.getRequestURI()
-        );
-        // Optionally log the exception
-        // logger.error("Unhandled exception occurred", ex);
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ErrDetails> handleGenericException(Exception ex, HttpServletRequest request) {
+        logger.error("Unexpected error: {}", ex.getMessage(), ex);
+        return buildErrorResponse("INTERNAL_SERVER_ERROR", "An unexpected error occurred. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Define the ErrorResponse class
-    public static class ErrorResponse {
-        private LocalDateTime timestamp;
-        private int status;
-        private String error;
-        private String message;
-        private String path;
-
-        // Constructor
-        public ErrorResponse(LocalDateTime timestamp, int status, String error, String message, String path) {
-            this.timestamp = timestamp;
-            this.status = status;
-            this.error = error;
-            this.message = message;
-            this.path = path;
-        }
-
-        // Getters and setters
-
-        public LocalDateTime getTimestamp() {
-            return timestamp;
-        }
-
-        public void setTimestamp(LocalDateTime timestamp) {
-            this.timestamp = timestamp;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        public String getPath() {
-            return path;
-        }
-
-        public void setPath(String path) {
-            this.path = path;
-        }
+    private ResponseEntity<ErrDetails> buildErrorResponse(String key, String value, HttpStatus status) {
+        ErrDetails error = new ErrDetails(key, value);
+        logger.error("{}: {}", status.value(), value);
+        return new ResponseEntity<>(error, status);
     }
 }

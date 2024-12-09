@@ -7,9 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "recipes")
@@ -23,6 +21,8 @@ public class Recipe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     @Column(nullable = false)
     private String title;
 
@@ -31,8 +31,9 @@ public class Recipe {
 
     @ElementCollection
     @CollectionTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id"))
+    @MapKeyColumn(name = "quantity")
     @Column(name = "ingredient")
-    private List<String> ingredients;
+    private Map<Integer, String> ingredients = new HashMap<>();
 
     @Lob
     private String preparationSteps;
@@ -62,4 +63,11 @@ public class Recipe {
     )
     @Builder.Default
     private Set<Category> categories = new HashSet<>();
+
+    public String formatCookingTime(int minutes) {
+        int hours = minutes / 60;
+        int remainingMinutes = minutes % 60;
+        return hours > 0 ? hours + " hrs " + remainingMinutes + " mins" : remainingMinutes + " mins";
+    }
+
 }

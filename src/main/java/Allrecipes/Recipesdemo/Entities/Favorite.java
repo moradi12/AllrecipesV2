@@ -1,5 +1,4 @@
-package Allrecipes.Recipesdemo;
-import Allrecipes.Recipesdemo.Entities.User;
+package Allrecipes.Recipesdemo.Entities;
 import Allrecipes.Recipesdemo.Recipe.Recipe;
 import jakarta.persistence.*;
 import lombok.*;

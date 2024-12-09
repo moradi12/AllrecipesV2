@@ -23,8 +23,8 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<jjwt.version>0.9.1</jjwt.version>
-		<springdoc.version>2.1.0</springdoc.version>
+		<jjwt.version>0.11.5</jjwt.version> <!-- Updated to latest version -->
+		<springdoc.version>2.1.0</springdoc.version> <!-- Ensure this is set correctly -->
 	</properties>
 
 	<dependencies>
@@ -45,17 +45,37 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Security -->
+		<!-- Security (Single Instance) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
 		<!-- JWT -->
+		<!-- Removed older jjwt dependency (0.9.1) -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt</artifactId>
+			<artifactId>jjwt-api</artifactId>
 			<version>${jjwt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId> <!-- or jjwt-gson if you prefer -->
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Springdoc OpenAPI Starter 2.x -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc.version}</version>
 		</dependency>
 
 		<!-- Validation -->
@@ -64,18 +84,12 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
-		<!-- SpringDoc OpenAPI for Swagger UI -->
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>${springdoc.version}</version>
-		</dependency>
-
 		<!-- Lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+			<version>1.18.28</version> <!-- Updated to latest version -->
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- Testing -->
@@ -84,11 +98,13 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Consider using JUnit 5 instead of JUnit 4 -->
+		<!-- If you still need JUnit 4, keep it; otherwise, remove it -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.13.1</version>
-			<scope>compile</scope>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
