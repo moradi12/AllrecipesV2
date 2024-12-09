@@ -43,16 +43,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // Disable CSRF as we're using JWT
                 .csrf(csrf -> csrf.disable())
+
+                // Configure CORS
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://your-frontend-url.com")); // Update with your frontend URL or use "*" for all origins
+                    config.setAllowedOrigins(List.of("*")); // Allow all origins for testing; replace with specific origins in production
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
                     config.setAllowCredentials(true);
                     return config;
                 }))
+
+                // Set session management to stateless
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Configure URL-based authorization
                 .authorizeHttpRequests(auth -> auth
                         // Permit access to Swagger endpoints
                         .requestMatchers(
@@ -70,9 +77,15 @@ public class SecurityConfig {
                         // Any other endpoints require authentication
                         .anyRequest().authenticated()
                 )
+
+                // Add JWT Authentication Filter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+
+                // Permit form login and logout (optional, based on your authentication strategy)
                 .formLogin(form -> form.permitAll())
                 .logout(logout -> logout.permitAll())
+
+                // Handle unauthorized access
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) ->
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
