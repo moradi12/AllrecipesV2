@@ -1,9 +1,9 @@
 package Allrecipes.Recipesdemo.Controllers;
 
-
+import Allrecipes.Recipesdemo.DTOs.UserResponse;
+import Allrecipes.Recipesdemo.DTOs.UserUpdateRequest;
 import Allrecipes.Recipesdemo.Entities.User;
 import Allrecipes.Recipesdemo.Service.UserService;
-import Allrecipes.Recipesdemo.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -20,5 +20,23 @@ public class UserController {
         return userService.toUserResponse(user);
     }
 
-    // Update user info, favorites endpoints, etc.
+    // Update user info
+    @PutMapping("/me")
+    public UserResponse updateCurrentUser(@AuthenticationPrincipal User user, @RequestBody UserUpdateRequest request) {
+        User updated = userService.updateUser(user, request);
+        return userService.toUserResponse(updated);
+    }
+
+    // Favorites management (assuming you have methods in userService)
+    @PostMapping("/me/favorites/{recipeId}")
+    public UserResponse addFavorite(@AuthenticationPrincipal User user, @PathVariable Long recipeId) {
+        userService.addFavoriteRecipe(user, recipeId);
+        return userService.toUserResponse(userService.findById(user.getId()).orElseThrow());
+    }
+
+    @DeleteMapping("/me/favorites/{recipeId}")
+    public UserResponse removeFavorite(@AuthenticationPrincipal User user, @PathVariable Long recipeId) {
+        userService.removeFavoriteRecipe(user, recipeId);
+        return userService.toUserResponse(userService.findById(user.getId()).orElseThrow());
+    }
 }

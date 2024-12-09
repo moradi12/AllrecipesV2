@@ -1,7 +1,9 @@
-package Allrecipes.Recipesdemo;
+package Allrecipes.Recipesdemo.DTOs;
 
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.Set;
 
 @Data
 @Builder
@@ -10,4 +12,5 @@ public class UserResponse {
     private String username;
     private String email;
     private String role;
+    private Set<Long> favorites;
 }

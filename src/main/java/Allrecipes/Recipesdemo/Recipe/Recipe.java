@@ -37,12 +37,12 @@ public class Recipe {
     @Lob
     private String preparationSteps;
 
-    private int cookingTime; // in minutes
+    private int cookingTime;
     private int servings;
-    private String dietaryInfo; // e.g., Vegetarian, Vegan, etc.
+    private String dietaryInfo;
 
     @Enumerated(EnumType.STRING)
-    private RecipeStatus status; // PENDING_APPROVAL, APPROVED, REJECTED
+    private RecipeStatus status;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

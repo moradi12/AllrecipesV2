@@ -60,4 +60,37 @@ public class RecipeService {
                 .createdByUsername(recipe.getCreatedBy().getUsername())
                 .build();
     }
+    public Recipe updateRecipe(Long id, RecipeCreateRequest req, User user) {
+        Recipe existing = recipeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Recipe not found"));
+
+        if (!existing.getCreatedBy().getId().equals(user.getId())) {
+            throw new RuntimeException("You do not have permission to update this recipe");
+        }
+
+        existing.setTitle(req.getTitle());
+        existing.setDescription(req.getDescription());
+        existing.setIngredients(Collections.singletonList(req.getIngredients()));
+        existing.setPreparationSteps(req.getPreparationSteps());
+        existing.setCookingTime(req.getCookingTime());
+        existing.setServings(req.getServings());
+        existing.setDietaryInfo(req.getDietaryInfo());
+        existing.setUpdatedAt(LocalDateTime.now());
+
+        return recipeRepository.save(existing);
+    }
+
+    public void deleteRecipe(Long id, User user) {
+        Recipe existing = recipeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Recipe not found"));
+
+        // Authorization check (optional)
+        if (!existing.getCreatedBy().getId().equals(user.getId())) {
+            throw new RuntimeException("You do not have permission to delete this recipe");
+        }
+
+        recipeRepository.delete(existing);
+    }
 }
+
+

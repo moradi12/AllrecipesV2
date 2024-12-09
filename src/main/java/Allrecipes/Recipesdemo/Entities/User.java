@@ -26,12 +26,21 @@ public class User {
     private String email;
 
     @Column(nullable=false)
-    private String password; // Hashed
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role; // USER or ADMIN
+    private Role role;
 
     @OneToMany(mappedBy="createdBy", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
     private Set<Recipe> recipes = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_favorites",
+            joinColumns = @JoinColumn(name="user_id"),
+            inverseJoinColumns = @JoinColumn(name="recipe_id")
+    )
+    @Builder.Default
+    private Set<Recipe> favorites = new HashSet<>();
 }

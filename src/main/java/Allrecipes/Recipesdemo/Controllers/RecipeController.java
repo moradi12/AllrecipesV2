@@ -1,6 +1,5 @@
 package Allrecipes.Recipesdemo.Controllers;
 
-
 import Allrecipes.Recipesdemo.Entities.User;
 import Allrecipes.Recipesdemo.Recipe.Recipe;
 import Allrecipes.Recipesdemo.Recipe.RecipeCreateRequest;
@@ -30,5 +29,15 @@ public class RecipeController {
         return recipeService.toRecipeResponse(recipe);
     }
 
-    // Similar methods for update and delete
+    @PutMapping("/{id}")
+    public RecipeResponse updateRecipe(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody RecipeCreateRequest req) {
+        Recipe updated = recipeService.updateRecipe(id, req, user);
+        return recipeService.toRecipeResponse(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteRecipe(@AuthenticationPrincipal User user, @PathVariable Long id) {
+        recipeService.deleteRecipe(id, user);
+    }
+
 }

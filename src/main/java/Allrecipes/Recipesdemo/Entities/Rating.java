@@ -17,12 +17,10 @@ public class Rating {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Many ratings can be associated with one recipe
     @ManyToOne
     @JoinColumn(name="recipe_id", nullable=false)
     private Recipe recipe;
 
-    // Many ratings can be associated with one user
     @ManyToOne
     @JoinColumn(name="user_id", nullable=false)
     private User user;

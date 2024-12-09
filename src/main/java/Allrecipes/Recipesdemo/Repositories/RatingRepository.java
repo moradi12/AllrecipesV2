@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface RatingRepository extends JpaRepository<Rating, Long> {
 
     Rating findByUserAndRecipe(User user, Recipe recipe);
-//    @Query("SELECT AVG(r.ratingValue) FROM Rating r WHERE r.recipe.id = :recipeId")
-//    Double findAverageRatingByRecipe(Long recipeId);
+
+    @Query("SELECT AVG(r.ratingValue) FROM Rating r WHERE r.recipe.id = :recipeId")
+    Double findAverageRatingByRecipe(Long recipeId);
 }
