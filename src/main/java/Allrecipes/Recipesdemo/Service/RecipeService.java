@@ -1,11 +1,11 @@
 package Allrecipes.Recipesdemo.Service;
 
+import Allrecipes.Recipesdemo.DTOs.RecipeCreateRequest;
 import Allrecipes.Recipesdemo.Entities.User;
 import Allrecipes.Recipesdemo.Exceptions.InvalidRecipeDataException;
 import Allrecipes.Recipesdemo.Exceptions.RecipeNotFoundException;
 import Allrecipes.Recipesdemo.Exceptions.UnauthorizedActionException;
 import Allrecipes.Recipesdemo.Recipe.Recipe;
-import Allrecipes.Recipesdemo.Recipe.RecipeCreateRequest;
 import Allrecipes.Recipesdemo.Recipe.RecipeResponse;
 import Allrecipes.Recipesdemo.RecipeStatus;
 import Allrecipes.Recipesdemo.Repositories.RecipeRepository;

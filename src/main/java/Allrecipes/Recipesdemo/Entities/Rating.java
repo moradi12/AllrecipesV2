@@ -27,4 +27,8 @@ public class Rating {
 
     @Column(nullable=false)
     private int ratingValue; // Should be between 1 and 5
+
+    private int score;
+
+    private String comment;
 }

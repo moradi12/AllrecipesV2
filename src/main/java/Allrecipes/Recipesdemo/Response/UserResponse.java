@@ -1,4 +1,4 @@
-package Allrecipes.Recipesdemo.DTOs;
+package Allrecipes.Recipesdemo.Response;
 
 import lombok.Builder;
 import lombok.Data;

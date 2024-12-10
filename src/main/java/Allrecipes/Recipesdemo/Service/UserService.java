@@ -1,6 +1,6 @@
 package Allrecipes.Recipesdemo.Service;
 
-import Allrecipes.Recipesdemo.DTOs.UserResponse;
+import Allrecipes.Recipesdemo.Response.UserResponse;
 import Allrecipes.Recipesdemo.Entities.Role;
 import Allrecipes.Recipesdemo.Entities.User;
 import Allrecipes.Recipesdemo.Exceptions.*;
