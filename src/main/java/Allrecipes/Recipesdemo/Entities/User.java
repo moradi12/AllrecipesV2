@@ -40,4 +40,6 @@ public class User {
     )
     @Builder.Default
     private Set<Recipe> favorites = new HashSet<>();
+
+
 }

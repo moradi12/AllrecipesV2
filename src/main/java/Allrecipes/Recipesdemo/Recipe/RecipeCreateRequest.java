@@ -1,4 +1,4 @@
-package Allrecipes.Recipesdemo.DTOs;
+package Allrecipes.Recipesdemo.Recipe;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

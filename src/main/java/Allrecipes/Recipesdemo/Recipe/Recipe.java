@@ -31,9 +31,8 @@ public class Recipe {
 
     @ElementCollection
     @CollectionTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id"))
-    @MapKeyColumn(name = "quantity")
     @Column(name = "ingredient")
-    private Map<Integer, String> ingredients = new HashMap<>();
+    private List<String> ingredients = new ArrayList<>();
 
     @Lob
     private String preparationSteps;
