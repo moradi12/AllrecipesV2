@@ -4,6 +4,9 @@ import Allrecipes.Recipesdemo.Recipe.Recipe;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Entity representing a user rating for a specific recipe.
+ */
 @Entity
 @Table(name = "ratings",
         uniqueConstraints = @UniqueConstraint(columnNames = {"recipe_id", "user_id"}))
@@ -25,10 +28,9 @@ public class Rating {
     @JoinColumn(name="user_id", nullable=false)
     private User user;
 
-    @Column(nullable=false)
-    private int ratingValue; // Should be between 1 and 5
-
+    @Column(nullable = false)
     private int score;
 
+    @Column(length = 500)
     private String comment;
 }

@@ -7,7 +7,7 @@ import Allrecipes.Recipesdemo.Exceptions.UnauthorizedActionException;
 import Allrecipes.Recipesdemo.Recipe.Recipe;
 import Allrecipes.Recipesdemo.Recipe.RecipeCreateRequest;
 import Allrecipes.Recipesdemo.Recipe.RecipeResponse;
-import Allrecipes.Recipesdemo.RecipeStatus;
+import Allrecipes.Recipesdemo.Entities.RecipeStatus;
 import Allrecipes.Recipesdemo.Repositories.RecipeRepository;
 import org.springframework.stereotype.Service;
 

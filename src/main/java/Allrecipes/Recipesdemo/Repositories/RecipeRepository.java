@@ -2,7 +2,7 @@ package Allrecipes.Recipesdemo.Repositories;
 
 
 import Allrecipes.Recipesdemo.Recipe.Recipe;
-import Allrecipes.Recipesdemo.RecipeStatus;
+import Allrecipes.Recipesdemo.Entities.RecipeStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

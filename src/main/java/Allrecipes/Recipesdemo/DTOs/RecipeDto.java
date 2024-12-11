@@ -1,6 +1,6 @@
 package Allrecipes.Recipesdemo.DTOs;
 
-import Allrecipes.Recipesdemo.RecipeStatus;
+import Allrecipes.Recipesdemo.Entities.RecipeStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

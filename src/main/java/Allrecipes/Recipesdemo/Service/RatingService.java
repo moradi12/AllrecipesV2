@@ -1,6 +1,5 @@
 package Allrecipes.Recipesdemo.Service;
 
-
 import Allrecipes.Recipesdemo.Entities.Rating;
 import Allrecipes.Recipesdemo.Entities.User;
 import Allrecipes.Recipesdemo.Exceptions.ResourceNotFoundException;
@@ -19,6 +18,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service layer providing CRUD operations for ratings.
+ */
 @Service
 @RequiredArgsConstructor
 public class RatingService {
@@ -36,20 +38,16 @@ public class RatingService {
      */
     @Transactional
     public RatingResponse createRating(RatingCreateRequest request) {
-        // Validate that the recipe exists
         Recipe recipe = recipeRepository.findById(request.getRecipeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Recipe not found with id: " + request.getRecipeId()));
 
-        // Validate that the user exists
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + request.getUserId()));
 
-        // Optionally, check if the user has already rated the recipe
         if (ratingRepository.existsByRecipeIdAndUserId(recipe.getId(), user.getId())) {
             throw new IllegalStateException("User has already rated this recipe.");
         }
 
-        // Create and save the new rating
         Rating rating = Rating.builder()
                 .score(request.getScore())
                 .comment(request.getComment())
@@ -88,6 +86,7 @@ public class RatingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Rating not found with id: " + id));
 
         if (request.getScore() != null) {
+            // If desired, you could re-validate the score here.
             rating.setScore(request.getScore());
         }
 
@@ -96,7 +95,6 @@ public class RatingService {
         }
 
         Rating updatedRating = ratingRepository.save(rating);
-
         return ratingMapper.toDto(updatedRating);
     }
 
@@ -119,8 +117,8 @@ public class RatingService {
      * @return A list of rating response DTOs.
      */
     public List<RatingResponse> getAllRatings() {
-        List<Rating> ratings = ratingRepository.findAll();
-        return ratings.stream()
+        return ratingRepository.findAll()
+                .stream()
                 .map(ratingMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -132,13 +130,12 @@ public class RatingService {
      * @return A list of rating response DTOs.
      */
     public List<RatingResponse> getRatingsByRecipeId(Long recipeId) {
-        // Validate that the recipe exists
         if (!recipeRepository.existsById(recipeId)) {
             throw new ResourceNotFoundException("Recipe not found with id: " + recipeId);
         }
 
-        List<Rating> ratings = ratingRepository.findByRecipeId(recipeId);
-        return ratings.stream()
+        return ratingRepository.findByRecipeId(recipeId)
+                .stream()
                 .map(ratingMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -150,13 +147,12 @@ public class RatingService {
      * @return A list of rating response DTOs.
      */
     public List<RatingResponse> getRatingsByUserId(Long userId) {
-        // Validate that the user exists
         if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }
 
-        List<Rating> ratings = ratingRepository.findByUserId(userId);
-        return ratings.stream()
+        return ratingRepository.findByUserId(userId)
+                .stream()
                 .map(ratingMapper::toDto)
                 .collect(Collectors.toList());
     }

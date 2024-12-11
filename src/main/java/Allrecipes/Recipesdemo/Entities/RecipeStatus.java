@@ -1,4 +1,4 @@
-package Allrecipes.Recipesdemo;
+package Allrecipes.Recipesdemo.Entities;
 
 public enum RecipeStatus {
     DRAFT,

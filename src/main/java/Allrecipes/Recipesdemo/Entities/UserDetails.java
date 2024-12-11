@@ -9,12 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class UserDetails {
-    private int userId;
+    private long userId;
     private String userName;
     private String email;
-    private String password;
     private UserType userType;
-
 }

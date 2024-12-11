@@ -7,6 +7,7 @@ import Allrecipes.Recipesdemo.Exceptions.*;
 import Allrecipes.Recipesdemo.Recipe.*;
 import Allrecipes.Recipesdemo.Repositories.RecipeRepository;
 import Allrecipes.Recipesdemo.Repositories.UserRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,33 @@ public class UserService {
         this.recipeRepository = recipeRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
+    @PostConstruct
+    public void seedAdminUser() {
+        if (!userRepository.findByEmail("admin@admin.com").isPresent()) {
+            User admin = User.builder()
+                    .username("admin")
+                    .email("admin@admin.com")
+                    .password(passwordEncoder.encode("admin"))
+                    .role(Role.ADMIN)
+                    .build();
+            userRepository.save(admin);
+        }
+    }
+
+
+    public User login(String usernameOrEmail, String rawPassword) {
+        User user = userRepository.findByUsername(usernameOrEmail)
+                .or(() -> userRepository.findByEmail(usernameOrEmail))
+                .orElseThrow(() -> new UserNotFoundException("User with username or email '" + usernameOrEmail + "' not found."));
+
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new UserNotFoundException("Invalid username/email or password.");
+        }
+
+        return user;
+    }
+
 
     public User registerUser(String username, String email, String rawPassword) {
         validateRegistrationData(username, email, rawPassword);

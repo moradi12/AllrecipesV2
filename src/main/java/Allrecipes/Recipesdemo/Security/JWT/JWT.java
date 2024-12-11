@@ -21,7 +21,7 @@ public class JWT {
 
     private String signatureAlgorithm = SignatureAlgorithm.HS256.getJcaName();
     //our private key - מפתח הצפנה שקיים רק אצלנו
-    private String encodedSecretKey = "uri+wants+to+lechartet+somthing+good+for+the+class";
+    private String encodedSecretKey = "jwt+secret+key+is+used+for+signing+and+validating+tokens+in+the+app";
     //create our private key = יצירה של מפתח ההצפנה לשימוש ביצירה של הטוקנים שלנו - VERIFY SIGNATURE
     private Key decodedSecretKey = new SecretKeySpec(Base64.getDecoder().decode(encodedSecretKey), this.signatureAlgorithm);
 
@@ -42,7 +42,6 @@ public class JWT {
         return createToken(claims, ourClaims.getSubject());
     }
 
-    //we create the JWT token from the information that we got.
     private String createToken(Map<String, Object> claims, String email) {
         Instant now = Instant.now();
         return Jwts.builder()
