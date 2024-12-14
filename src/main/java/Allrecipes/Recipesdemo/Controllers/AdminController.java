@@ -119,7 +119,6 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("message", "Recipe deleted successfully."));
     }
 
-    // Register a new customer
     @PostMapping("/customers")
     public ResponseEntity<UserResponse> registerCustomer(
             @RequestHeader("Authorization") String authHeader,
@@ -131,7 +130,6 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
-    // Fetch all registered customers
     @GetMapping("/customers")
     public ResponseEntity<List<UserResponse>> getAllCustomers(@RequestHeader("Authorization") String authHeader) throws LoginException {
         jwtUtil.checkUser(authHeader, UserType.ADMIN);
@@ -141,7 +139,6 @@ public class AdminController {
         return ResponseEntity.ok(customers);
     }
 
-    // Delete a customer by ID
     @DeleteMapping("/customers/{id}")
     public ResponseEntity<Map<String, String>> deleteCustomer(
             @RequestHeader("Authorization") String authHeader,
