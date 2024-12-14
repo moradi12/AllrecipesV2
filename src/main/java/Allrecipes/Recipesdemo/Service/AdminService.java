@@ -2,7 +2,7 @@ package Allrecipes.Recipesdemo.Service;
 
 import Allrecipes.Recipesdemo.Exceptions.RecipeNotFoundException;
 import Allrecipes.Recipesdemo.Recipe.Recipe;
-import Allrecipes.Recipesdemo.Entities.RecipeStatus;
+import Allrecipes.Recipesdemo.Entities.Enums.RecipeStatus;
 import Allrecipes.Recipesdemo.Repositories.RecipeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

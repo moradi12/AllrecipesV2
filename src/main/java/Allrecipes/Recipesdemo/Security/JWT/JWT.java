@@ -1,7 +1,7 @@
 package Allrecipes.Recipesdemo.Security.JWT;
 
 import Allrecipes.Recipesdemo.Entities.UserDetails;
-import Allrecipes.Recipesdemo.Entities.UserType;
+import Allrecipes.Recipesdemo.Entities.Enums.UserType;
 import io.jsonwebtoken.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -119,5 +119,32 @@ public class JWT {
             headers.set("Authorization","Bearer " + generateToken((userJWT)));
         }
         return  headers;
+    }
+
+
+    public UserDetails getUserDetails(String authHeader) throws LoginException {
+        String token = authHeader.replace("Bearer ", "");
+        if (!validateToken(token)) {
+            throw new LoginException("Invalid or expired token.");
+        }
+
+        Claims claims = extractAllClaims(token);
+        Long userId = claims.get("id", Long.class);
+        String userName = claims.get("userName", String.class);
+        String userTypeString = claims.get("userType", String.class);
+
+        UserType userType;
+        try {
+            userType = UserType.valueOf(userTypeString);
+        } catch (IllegalArgumentException e) {
+            throw new LoginException("Invalid user type in token.");
+        }
+
+        return UserDetails.builder()
+                .userId(userId)
+                .userName(userName)
+                .email(claims.getSubject())
+                .userType(userType)
+                .build();
     }
 }

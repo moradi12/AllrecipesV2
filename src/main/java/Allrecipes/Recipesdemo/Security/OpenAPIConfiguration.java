@@ -16,12 +16,6 @@ import java.util.List;
 
 public class OpenAPIConfiguration {
 
-
-    /**
-     * Define OpenAPI documentation bean
-     *
-     * @return OpenAPI object representing the API documentation
-     */
     @Bean
     public OpenAPI defineOpenAPI(@Value("springdoc-openapi-ui") String serviceTitle, @Value("1.6.12") String serviceVersion) {
         Server server = new Server();

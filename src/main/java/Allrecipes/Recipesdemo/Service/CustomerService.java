@@ -1,14 +1,13 @@
 package Allrecipes.Recipesdemo.Service;
 
 import Allrecipes.Recipesdemo.Response.UserResponse;
-import Allrecipes.Recipesdemo.Entities.Role;
+import Allrecipes.Recipesdemo.Entities.Enums.UserType;
 import Allrecipes.Recipesdemo.Entities.User;
 import Allrecipes.Recipesdemo.Exceptions.*;
 import Allrecipes.Recipesdemo.Recipe.*;
 import Allrecipes.Recipesdemo.Repositories.RecipeRepository;
 import Allrecipes.Recipesdemo.Repositories.UserRepository;
 import jakarta.annotation.PostConstruct;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,15 +15,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class CustomerService {
     private final UserRepository userRepository;
     private final RecipeRepository recipeRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RecipeRepository recipeRepository, PasswordEncoder passwordEncoder) {
+    public CustomerService(UserRepository userRepository, RecipeRepository recipeRepository) {
         this.userRepository = userRepository;
         this.recipeRepository = recipeRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @PostConstruct
@@ -33,26 +30,24 @@ public class UserService {
             User admin = User.builder()
                     .username("admin")
                     .email("admin@admin.com")
-                    .password(passwordEncoder.encode("admin"))
-                    .role(Role.ADMIN)
+                    .password("admin")
+                    .userType(UserType.ADMIN) // Using UserType.ADMIN
                     .build();
             userRepository.save(admin);
         }
     }
-
 
     public User login(String usernameOrEmail, String rawPassword) {
         User user = userRepository.findByUsername(usernameOrEmail)
                 .or(() -> userRepository.findByEmail(usernameOrEmail))
                 .orElseThrow(() -> new UserNotFoundException("User with username or email '" + usernameOrEmail + "' not found."));
 
-        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+        if (!rawPassword.equals(user.getPassword())) {
             throw new UserNotFoundException("Invalid username/email or password.");
         }
 
         return user;
     }
-
 
     public User registerUser(String username, String email, String rawPassword) {
         validateRegistrationData(username, email, rawPassword);
@@ -68,8 +63,8 @@ public class UserService {
         User user = User.builder()
                 .username(username)
                 .email(email)
-                .password(passwordEncoder.encode(rawPassword))
-                .role(Role.USER)
+                .password(rawPassword)
+                .userType(UserType.CUSTOMER) // Default to CUSTOMER
                 .build();
         return userRepository.save(user);
     }
@@ -111,17 +106,13 @@ public class UserService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role(user.getRole().name())
+                .userType(user.getUserType().name()) // Reflect the UserType
                 .favorites(
                         user.getFavorites().stream()
                                 .map(Recipe::getId)
                                 .collect(Collectors.toSet())
                 )
                 .build();
-    }
-
-    public boolean checkPassword(String rawPassword, String encodedPassword) {
-        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     public void updateUser(Long userId, String newUsername, String newEmail, String newPassword) {
@@ -143,7 +134,7 @@ public class UserService {
         }
 
         if (newPassword != null && newPassword.length() >= 6) {
-            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setPassword(newPassword);
         }
 
         userRepository.save(user);
@@ -169,10 +160,10 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void assignRoleToUser(Long userId, Role newRole) {
+    public void assignUserTypeToUser(Long userId, UserType newUserType) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found."));
-        user.setRole(newRole);
+        user.setUserType(newUserType);
         userRepository.save(user);
     }
 }

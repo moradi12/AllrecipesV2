@@ -1,4 +1,4 @@
-package Allrecipes.Recipesdemo.Entities;
+package Allrecipes.Recipesdemo.Entities.Enums;
 
 import lombok.Getter;
 

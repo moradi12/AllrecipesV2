@@ -2,7 +2,7 @@ package Allrecipes.Recipesdemo.Recipe;
 
 import Allrecipes.Recipesdemo.Entities.Category;
 import Allrecipes.Recipesdemo.Entities.User;
-import Allrecipes.Recipesdemo.Entities.RecipeStatus;
+import Allrecipes.Recipesdemo.Entities.Enums.RecipeStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

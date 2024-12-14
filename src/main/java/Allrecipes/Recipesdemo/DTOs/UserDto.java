@@ -5,6 +5,13 @@ public class UserDto {
     private String username;
     private String email;
 
+    public UserDto() {
+        this.password = password;
+    }
+
+    private String password;
+
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

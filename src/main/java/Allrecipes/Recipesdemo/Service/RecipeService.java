@@ -1,13 +1,14 @@
 package Allrecipes.Recipesdemo.Service;
 
 import Allrecipes.Recipesdemo.Entities.User;
+import Allrecipes.Recipesdemo.Entities.UserDetails;
 import Allrecipes.Recipesdemo.Exceptions.InvalidRecipeDataException;
 import Allrecipes.Recipesdemo.Exceptions.RecipeNotFoundException;
 import Allrecipes.Recipesdemo.Exceptions.UnauthorizedActionException;
 import Allrecipes.Recipesdemo.Recipe.Recipe;
 import Allrecipes.Recipesdemo.Recipe.RecipeCreateRequest;
 import Allrecipes.Recipesdemo.Recipe.RecipeResponse;
-import Allrecipes.Recipesdemo.Entities.RecipeStatus;
+import Allrecipes.Recipesdemo.Entities.Enums.RecipeStatus;
 import Allrecipes.Recipesdemo.Repositories.RecipeRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +24,6 @@ public class RecipeService {
         this.recipeRepository = recipeRepository;
     }
 
-    /**
-     * Create a new recipe with the given request data and associate it with the provided user.
-     *
-     * @param req  The request data for creating a recipe.
-     * @param user The user who is creating the recipe.
-     * @return The newly created recipe entity.
-     */
     public Recipe createRecipe(RecipeCreateRequest req, User user) {
         validateRecipeRequest(req);
 
@@ -42,7 +36,7 @@ public class RecipeService {
                 .servings(req.getServings())
                 .dietaryInfo(req.getDietaryInfo())
                 .status(RecipeStatus.PENDING_APPROVAL)
-                .createdBy(user)
+                .createdBy(user) // Use the User object directly
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .containsGluten(req.getContainsGlutenOrDefault())
@@ -166,4 +160,26 @@ public class RecipeService {
     private String formatIngredients(List<String> ingredients) {
         return String.join(", ", ingredients);
     }
+
+
+
+    public List<RecipeResponse> getRecipesByUserId(Long userId) {
+        return recipeRepository.findByCreatedById(userId).stream()
+                .map(this::toRecipeResponse)
+                .collect(Collectors.toList());
+    }
+
+    public Recipe getRecipeById(Long id) {
+        return recipeRepository.findById(id)
+                .orElseThrow(() -> new RecipeNotFoundException("Recipe not found with ID: " + id));
+    }
+
+    public List<RecipeResponse> searchRecipesByTitle(String title) {
+        return recipeRepository.findByTitleContainingIgnoreCase(title).stream()
+                .map(this::toRecipeResponse)
+                .collect(Collectors.toList());
+    }
+
+
+
 }

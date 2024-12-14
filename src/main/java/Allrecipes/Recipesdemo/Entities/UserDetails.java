@@ -1,5 +1,6 @@
 package Allrecipes.Recipesdemo.Entities;
 
+import Allrecipes.Recipesdemo.Entities.Enums.UserType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

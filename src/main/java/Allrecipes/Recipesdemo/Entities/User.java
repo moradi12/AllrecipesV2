@@ -1,5 +1,6 @@
 package Allrecipes.Recipesdemo.Entities;
 
+import Allrecipes.Recipesdemo.Entities.Enums.UserType;
 import Allrecipes.Recipesdemo.Recipe.Recipe;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,7 +31,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private UserType userType;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
