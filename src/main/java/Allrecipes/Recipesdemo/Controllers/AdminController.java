@@ -3,15 +3,18 @@ package Allrecipes.Recipesdemo.Controllers;
 import Allrecipes.Recipesdemo.Entities.Enums.UserType;
 import Allrecipes.Recipesdemo.Entities.User;
 import Allrecipes.Recipesdemo.Entities.UserDetails;
-import Allrecipes.Recipesdemo.Exceptions.RecipeNotFoundException;
 import Allrecipes.Recipesdemo.Recipe.Recipe;
-import Allrecipes.Recipesdemo.Recipe.RecipeCreateRequest;
 import Allrecipes.Recipesdemo.Recipe.RecipeResponse;
+import Allrecipes.Recipesdemo.Request.RecipeCreateRequest;
 import Allrecipes.Recipesdemo.Response.UserResponse;
 import Allrecipes.Recipesdemo.Security.JWT.JWT;
 import Allrecipes.Recipesdemo.Service.AdminService;
 import Allrecipes.Recipesdemo.Service.CustomerService;
 import Allrecipes.Recipesdemo.Service.RecipeService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -77,11 +80,26 @@ public class AdminController {
                 .body(Map.of("message", "Recipe added successfully.", "recipeId", recipe.getId().toString()));
     }
 
-    // Fetch all recipes
+    // Fetch all recipes with pagination and sorting
     @GetMapping("/recipes")
-    public ResponseEntity<List<RecipeResponse>> getAllRecipes(@RequestHeader("Authorization") String authHeader) throws LoginException {
+    public ResponseEntity<Page<RecipeResponse>> getAllRecipes(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy
+    ) throws LoginException {
         jwtUtil.checkUser(authHeader, UserType.ADMIN);
-        return ResponseEntity.ok(recipeService.getAllRecipes());
+
+        // Create Pageable object
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
+
+        // Fetch paginated recipes
+        Page<Recipe> recipePage = recipeService.getAllRecipes(pageable);
+
+        // Convert Recipe entities to RecipeResponse DTOs
+        Page<RecipeResponse> responsePage = recipePage.map(recipeService::toRecipeResponse);
+
+        return ResponseEntity.ok(responsePage);
     }
 
     // Get a recipe by ID
@@ -119,6 +137,7 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("message", "Recipe deleted successfully."));
     }
 
+    // Register a new customer
     @PostMapping("/customers")
     public ResponseEntity<UserResponse> registerCustomer(
             @RequestHeader("Authorization") String authHeader,
@@ -130,6 +149,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
+    // Fetch all customers
     @GetMapping("/customers")
     public ResponseEntity<List<UserResponse>> getAllCustomers(@RequestHeader("Authorization") String authHeader) throws LoginException {
         jwtUtil.checkUser(authHeader, UserType.ADMIN);
@@ -139,6 +159,7 @@ public class AdminController {
         return ResponseEntity.ok(customers);
     }
 
+    // Delete a customer by ID
     @DeleteMapping("/customers/{id}")
     public ResponseEntity<Map<String, String>> deleteCustomer(
             @RequestHeader("Authorization") String authHeader,
@@ -157,4 +178,20 @@ public class AdminController {
                 .userType(userDetails.getUserType())
                 .build();
     }
+
+    // **New Method**: Fetch all recipes without Authorization (For Testing Only)
+    @GetMapping("/recipes/public")
+    public ResponseEntity<List<RecipeResponse>> getAllRecipesPublic() {
+        // Create an unpaged Pageable instance
+        Pageable pageable = Pageable.unpaged();
+
+        // Fetch all recipes without pagination
+        Page<Recipe> recipePage = recipeService.getAllRecipes(pageable);
+
+        // Convert to RecipeResponse DTOs
+        List<RecipeResponse> recipes = recipePage.map(recipeService::toRecipeResponse).getContent();
+
+        return ResponseEntity.ok(recipes);
+    }
+
 }

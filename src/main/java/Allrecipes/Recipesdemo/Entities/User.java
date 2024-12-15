@@ -2,18 +2,17 @@ package Allrecipes.Recipesdemo.Entities;
 
 import Allrecipes.Recipesdemo.Entities.Enums.UserType;
 import Allrecipes.Recipesdemo.Recipe.Recipe;
-import jakarta.persistence.*;
 import lombok.*;
 
+import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
-
 @Entity
-@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "users")
 public class User {
 
     @Id
@@ -40,7 +39,6 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "recipe_id")
     )
     @Builder.Default
+    @ToString.Exclude // Exclude favorites from toString to prevent LazyInitializationException
     private Set<Recipe> favorites = new HashSet<>();
-
-
 }

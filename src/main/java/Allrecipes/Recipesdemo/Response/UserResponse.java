@@ -12,5 +12,5 @@ public class UserResponse {
     private String username;
     private String email;
     private String userType;
-    private Set<Long> favorites;
+    private Set<Long> favorites; // Store only recipe IDs to avoid loading entire Recipe entities
 }

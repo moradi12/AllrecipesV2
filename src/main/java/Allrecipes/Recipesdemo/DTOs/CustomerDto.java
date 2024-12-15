@@ -1,11 +1,11 @@
 package Allrecipes.Recipesdemo.DTOs;
 
-public class UserDto {
+public class CustomerDto {
     private Long id;
     private String username;
     private String email;
 
-    public UserDto() {
+    public CustomerDto() {
         this.password = password;
     }
 
