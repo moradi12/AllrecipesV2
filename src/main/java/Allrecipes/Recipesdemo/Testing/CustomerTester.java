@@ -1,9 +1,15 @@
 package Allrecipes.Recipesdemo.Testing;
 
 import Allrecipes.Recipesdemo.Entities.User;
-import Allrecipes.Recipesdemo.Exceptions.*;
-import Allrecipes.Recipesdemo.Response.UserResponse;
+import Allrecipes.Recipesdemo.Entities.Comment;
+import Allrecipes.Recipesdemo.Rating.RatingResponse;
+import Allrecipes.Recipesdemo.Request.RatingCreateRequest;
+import Allrecipes.Recipesdemo.Request.RecipeCreateRequest;
 import Allrecipes.Recipesdemo.Service.CustomerService;
+import Allrecipes.Recipesdemo.Service.CommentService;
+import Allrecipes.Recipesdemo.Service.RatingService;
+import Allrecipes.Recipesdemo.Service.RecipeService;
+import Allrecipes.Recipesdemo.Recipe.Recipe;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -13,32 +19,30 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Component
-@Order(7) // Ensure this runs after AdminTester which has @Order(6)
+@Order(7)
 public class CustomerTester implements CommandLineRunner {
 
     private final CustomerService customerService;
+    private final CommentService commentService;
+    private final RatingService ratingService;
+    private final RecipeService recipeService;
 
-    // Store User objects to access their IDs later
     private User customer1;
     private User customer2;
-    private User customer3;
-    private User customer4;
+    private Recipe testRecipe;
 
     @Override
-    public void run(String... args) throws Exception {
-        System.out.println("\n!!!!!!!!!!!!Customer Tester Testing!!!!!!!!!!!!!!\n");
+    public void run(String... args) {
+        System.out.println("\n======== Customer Tester ========\n");
 
         try {
             addCustomers();
+            addTestRecipe();
             printAllCustomers();
-            updateCustomer();
-            printAllCustomers();
-            deleteUser(); // Delete Customer 3 by ID
-            printAllCustomers();
-            // Optionally, delete other customers as needed
+            testComments();
+            testRatings();
         } catch (Exception e) {
             System.out.println("An unexpected error occurred during CustomerTester: " + e.getMessage());
-            // Optionally, handle the exception further if needed
         }
     }
 
@@ -46,37 +50,51 @@ public class CustomerTester implements CommandLineRunner {
      * Adds multiple customers to the system.
      */
     private void addCustomers() {
-        try {
-            System.out.println("Adding new customers...");
+        System.out.println("\n===== Adding New Customers =====");
 
-            // Add Customer 1
+        try {
             customer1 = customerService.registerUser("johnDoe", "john.doe@example.com", "password123");
             System.out.println("Added Customer 1: " + customer1);
 
-            // Add Customer 2
             customer2 = customerService.registerUser("janeSmith", "jane.smith@example.com", "securePass456");
             System.out.println("Added Customer 2: " + customer2);
 
-            // Add Customer 3 with unique email
-            customer3 = customerService.registerUser("johnDuplicate", "john.duplicate@example.com", "anotherPass789");
-            System.out.println("Added Customer 3: " + customer3);
-
-            // Add Customer 4
-            customer4 = customerService.registerUser("David", "david.david@example.com", "David1212");
-            System.out.println("Added Customer 4: " + customer4);
-
-        } catch (UsernameAlreadyTakenException | EmailAlreadyTakenException | IllegalArgumentException e) {
-            System.out.println("Error adding customer: " + e.getMessage());
-            // Handle specific exceptions if needed
+        } catch (Exception e) {
+            System.out.println("Error adding customers: " + e.getMessage());
         }
     }
 
     /**
-     * Prints all customers in the system using DTOs.
+     * Seeds a test recipe for testing purposes.
+     */
+    private void addTestRecipe() {
+        System.out.println("\n===== Adding Test Recipe =====");
+
+        try {
+            RecipeCreateRequest recipeRequest = RecipeCreateRequest.builder()
+                    .title("Test Recipe")
+                    .description("A simple test recipe.")
+                    .ingredients(List.of("Ingredient 1", "Ingredient 2"))
+                    .preparationSteps("Step 1: Do this. Step 2: Do that.")
+                    .cookingTime(30)
+                    .servings(4)
+                    .dietaryInfo("Vegetarian") // Optional dietary information
+                    .build();
+
+            testRecipe = recipeService.createRecipe(recipeRequest, customer1);
+            System.out.println("Added Test Recipe: " + testRecipe);
+        } catch (Exception e) {
+            System.out.println("Error adding test recipe: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Prints all customers in the system.
      */
     private void printAllCustomers() {
-        System.out.println("\nFetching all customers:");
-        List<UserResponse> customers = customerService.getAllUserResponses();
+        System.out.println("\n===== Fetching All Customers =====");
+
+        List<User> customers = customerService.getAllUsers();
         if (customers.isEmpty()) {
             System.out.println("No customers found.");
         } else {
@@ -85,73 +103,52 @@ public class CustomerTester implements CommandLineRunner {
     }
 
     /**
-     * Updates the details of a specific customer.
-     * Updates Customer 1 (johnDoe) to johnUpdated.
+     * Tests adding and retrieving comments for the test recipe.
      */
-    private void updateCustomer() {
+    private void testComments() {
+        System.out.println("\n===== Testing Comments =====");
+
         try {
-            System.out.println("\nUpdating Customer 1 (johnDoe)...");
-            // Retrieve Customer 1 by username to get the actual ID
-            User retrievedCustomer1 = customerService.findByUsernameOrEmail("johnDoe")
-                    .orElseThrow(() -> new UserNotFoundException("Customer 'johnDoe' not found."));
-            System.out.println("Retrieved Customer 1: " + retrievedCustomer1);
+            // Add a comment to the test recipe
+            Comment comment = new Comment();
+            comment.setText("This is a test comment for the recipe.");
+            comment.setUser(customer1);
+            comment.setRecipe(testRecipe);
+            Comment createdComment = commentService.createComment(comment);
+            System.out.println("Created Comment: " + createdComment);
 
-            // Perform the update
-            customerService.updateUser(retrievedCustomer1.getId(), "johnUpdated", "john.updated@example.com", "newPassword123");
-            System.out.println("Customer 1 updated successfully.");
+            // Retrieve the comment by ID
+            Comment retrievedComment = commentService.getCommentById(createdComment.getId());
+            System.out.println("Retrieved Comment: " + retrievedComment);
 
-            // Fetch the updated customer to verify changes
-            User updatedCustomer1 = customerService.findById(retrievedCustomer1.getId())
-                    .orElseThrow(() -> new UserNotFoundException("Updated Customer 'johnUpdated' not found."));
-            System.out.println("Updated Customer 1: " + updatedCustomer1);
-
-        } catch (UserNotFoundException | UsernameAlreadyTakenException | EmailAlreadyTakenException | IllegalArgumentException e) {
-            System.out.println("Error updating customer: " + e.getMessage());
-            // Handle specific exceptions if needed
+        } catch (Exception e) {
+            System.out.println("Error testing comments: " + e.getMessage());
         }
     }
 
     /**
-     * Deletes Customer 3 by ID.
+     * Tests creating and retrieving ratings for the test recipe.
      */
-    private void deleteUser() {
+    private void testRatings() {
+        System.out.println("\n===== Testing Ratings =====");
+
         try {
-            System.out.println("\nDeleting Customer 3 (johnDuplicate) by ID...");
-            if (customer3 == null) {
-                System.out.println("Customer 3 has not been added. Please ensure customers are added correctly.");
-                return;
-            }
-            Long customer3Id = customer3.getId();
-            System.out.println("Customer 3 ID: " + customer3Id);
+            // Add a rating for the test recipe
+            RatingCreateRequest ratingRequest = RatingCreateRequest.builder()
+                    .recipeId(testRecipe.getId())
+                    .userId(customer1.getId())
+                    .score(5)
+                    .comment("This is a test rating.")
+                    .build();
 
-            // Perform the deletion
-            customerService.deleteUser(customer3Id);
-            System.out.println("Customer 3 deleted successfully.");
+            RatingResponse createdRating = ratingService.createRating(ratingRequest);
+            System.out.println("Created Rating: " + createdRating);
 
-        } catch (UserNotFoundException e) {
-            System.out.println("Error deleting Customer 3 by ID: " + e.getMessage());
-            // Handle specific exceptions if needed
+            RatingResponse retrievedRating = ratingService.getRatingById(createdRating.getId());
+            System.out.println("Retrieved Rating: " + retrievedRating);
+
+        } catch (Exception e) {
+            System.out.println("Error testing ratings: " + e.getMessage());
         }
     }
-
-    // Optionally, implement additional deletion methods if needed
-    /*
-    private void deleteCustomerByUsername() {
-        try {
-            System.out.println("\nDeleting Customer 2 (janeSmith) by Username...");
-            // Retrieve Customer 2 by username
-            User retrievedCustomer2 = customerService.findByUsernameOrEmail("janeSmith")
-                    .orElseThrow(() -> new UserNotFoundException("Customer 'janeSmith' not found."));
-            System.out.println("Retrieved Customer 2: " + retrievedCustomer2);
-
-            // Perform the deletion
-            customerService.deleteUser(retrievedCustomer2.getId());
-            System.out.println("Customer 2 deleted successfully.");
-
-        } catch (UserNotFoundException e) {
-            System.out.println("Error deleting Customer 2 by Username: " + e.getMessage());
-            // Handle specific exceptions if needed
-        }
-    }
-    */
 }
