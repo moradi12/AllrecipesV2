@@ -7,9 +7,6 @@ import Allrecipes.Recipesdemo.Response.RecipeReviewResponse;
 
 public class RecipeMapper {
 
-    /**
-     * Convert a Recipe entity to a RecipeResponse DTO.
-     */
     public static RecipeResponse toRecipeResponse(Recipe recipe) {
         return RecipeResponse.builder()
                 .id(recipe.getId())
