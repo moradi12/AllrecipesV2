@@ -9,20 +9,16 @@ import java.util.List;
 
 @Service
 public class CategoryService {
+
     private final CategoryRepository categoryRepository;
+
     public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
+
     public Category getCategoryByName(String name) {
         return categoryRepository.findByName(name).orElse(null);
     }
-
-    /**
-     * Creates a new category if it doesn't already exist.
-     *
-     * @param foodCategory the FoodCategories enum value
-     * @return the created or existing Category entity
-     */
     public Category createCategory(FoodCategories foodCategory) {
         return categoryRepository.findByName(foodCategory.name())
                 .orElseGet(() -> {
@@ -33,7 +29,27 @@ public class CategoryService {
                     return categoryRepository.save(category);
                 });
     }
+
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
+    }
+    public List<Category> searchCategoriesByName(String keyword) {
+        return categoryRepository.findByNameContainingIgnoreCase(keyword);
+    }
+    public List<Category> getCategoriesSortedByName() {
+        return categoryRepository.findAllByOrderByNameAsc();
+    }
+    public boolean categoryExists(String name) {
+        return categoryRepository.existsByName(name);
+    }
+    public void deleteCategoryByName(String name) {
+        if (categoryExists(name)) {
+            categoryRepository.deleteByName(name);
+        } else {
+            throw new IllegalArgumentException("Category with name " + name + " does not exist.");
+        }
+    }
+    public List<Category> getCategoriesByIds(List<Long> ids) {
+        return categoryRepository.findByIdIn(ids);
     }
 }
