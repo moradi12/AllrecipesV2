@@ -1,6 +1,7 @@
 package Allrecipes.Recipesdemo.Entities;
 
 import Allrecipes.Recipesdemo.Recipe.Recipe;
+import Allrecipes.Recipesdemo.Entities.Enums.FoodCategories;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,10 @@ public class Category {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FoodCategories foodCategory;
 
     @ManyToMany(mappedBy = "categories")
     @Builder.Default

@@ -3,6 +3,7 @@ package Allrecipes.Recipesdemo.Recipe;
 import Allrecipes.Recipesdemo.Entities.Category;
 import Allrecipes.Recipesdemo.Entities.User;
 import Allrecipes.Recipesdemo.Entities.Enums.RecipeStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -54,12 +55,13 @@ public class Recipe {
     @Column(nullable = false)
     private boolean containsGluten = true;
 
+
     @ManyToMany
-    @JoinTable(
-            name = "recipe_categories",
-            joinColumns = @JoinColumn(name = "recipe_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
+//    @JoinTable(
+//            name = "recipe_categories",
+//            joinColumns = @JoinColumn(name = "recipe_id"),
+//            inverseJoinColumns = @JoinColumn(name = "category_id")
+//    )
     @Builder.Default
     private Set<Category> categories = new HashSet<>();
 
